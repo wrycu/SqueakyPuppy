@@ -1,0 +1,77 @@
+<button class="ui basic button users">
+    <i class="icon add circle"></i>
+    New user
+</button>
+<table class="ui celled table">
+<thead>
+    <tr>
+    <th>User</th>
+    <th>E-mail</th>
+    <th>Assessments</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>No Name Specified</td>
+        <td>Unknown</td>
+        <td class="negative">None</td>
+    </tr>
+    <tr class="positive">
+        <td>Jimmy</td>
+        <td><i class="icon checkmark"></i> Approved</td>
+        <td>None</td>
+    </tr>
+    <tr>
+        <td>Jamie</td>
+        <td>Unknown</td>
+        <td class="positive"><i class="icon close"></i> Requires call</td>
+    </tr>
+    <tr class="negative">
+        <td>Jill</td>
+        <td>Unknown</td>
+        <td>None</td>
+    </tr>
+</tbody>
+</table>
+
+<script>
+    $(function () {
+        $('.ui.modal.users').modal({
+            onApprove : function() {
+                return false;
+            }
+        }).modal('attach events', '.button.users', 'show').modal('attach events', '.button.cancel', 'hide');
+
+        $('#create_user').form({
+            fields: {
+                username : 'empty',
+                email    : 'email',
+            }
+        });
+    });
+</script>
+
+<div class="ui modal users">
+    <div class="header">
+        Create new user
+    </div>
+    <div class="content">
+        <p>
+            <form class="ui form" id="create_user">
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="Username">
+                </div>
+                <div class="field">
+                    <label>E-mail address</label>
+                    <input type="text" name="email" placeholder="E-mail address">
+                </div>
+                <div class="ui error message"></div>
+            </form>
+        </p>
+    </div>
+    <div class="actions">
+        <input type="submit" value="Create" form="create_user" class="ui positive button" formmethod="post">
+        <div class="ui button cancel">Cancel</div>
+    </div>
+</div>

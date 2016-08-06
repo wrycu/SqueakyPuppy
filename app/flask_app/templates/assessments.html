@@ -1,0 +1,55 @@
+<button class="ui basic button assessments">
+    <i class="icon add circle"></i>
+    New assessment
+</button>
+<table class="ui celled table">
+<thead>
+    <tr>
+    <th>User</th>
+    <th>E-mail</th>
+    <th>Assessments</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>No Name Specified</td>
+        <td>Unknown</td>
+        <td class="negative">None</td>
+    </tr>
+    <tr class="positive">
+        <td>Jimmy</td>
+        <td><i class="icon checkmark"></i> Approved</td>
+        <td>None</td>
+    </tr>
+    <tr>
+        <td>Jamie</td>
+        <td>Unknown</td>
+        <td class="positive"><i class="icon close"></i> Requires call</td>
+    </tr>
+    <tr class="negative">
+        <td>Jill</td>
+        <td>Unknown</td>
+        <td>None</td>
+    </tr>
+</tbody>
+</table>
+
+<script>
+    $(function () {
+        $('.ui.modal.assessments').modal('attach events', '.button.assessments', 'show');
+    });
+</script>
+
+<div class="ui modal assessments">
+    <div class="header">
+        Header
+    </div>
+    <div class="content">
+        <p></p>
+    </div>
+    <div class="actions">
+        <div class="ui approve button">Approve</div>
+        <div class="ui button">Neutral</div>
+        <div class="ui cancel button">Cancel</div>
+    </div>
+</div>

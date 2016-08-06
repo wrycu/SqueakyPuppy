@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/semantic.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/semantic.min.css') }}">
+</head>
+<body>
+<div class="ui secondary pointing menu">
+    <a class="item active" data-tab="tab_home">
+        Home
+    </a>
+    <a class="item" data-tab="tab_callbacks">
+        Callbacks
+    </a>
+    <a class="item" data-tab="tab_users">
+        Users
+    </a>
+    <a class="item" data-tab="tab_assessments">
+        Assessments
+    </a>
+    <a class="item" data-tab="tab_blacklist">
+        Domain Blacklist
+    </a>
+    <a class="item" data-tab="tab_log">
+        Log
+    </a>
+    <div class="right menu">
+        <a class="ui item">
+            Logout
+        </a>
+    </div>
+</div>
+
+<div class="ui tab active" data-tab="tab_home">
+    a
+</div>
+<div class="ui tab" data-tab="tab_callbacks">
+    {% include "callbacks.html" %}
+</div>
+<div class="ui tab" data-tab="tab_users">
+    {% include "users.html" %}
+</div>
+<div class="ui tab" data-tab="tab_assessments">
+    {% include "assessments.html" %}
+</div>
+<div class="ui tab" data-tab="tab_blacklist">
+    {% include "blacklists.html" %}
+</div>
+<div class="ui tab" data-tab="tab_log">
+    f
+</div>
+
+<script>
+    $(function () {
+        $('.menu .item').tab();
+    });
+</script>
+</body>
+</html>

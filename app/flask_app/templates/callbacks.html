@@ -1,0 +1,55 @@
+<button class="ui basic button callbacks">
+    <i class="icon code"></i>
+    New callback
+</button>
+<table class="ui celled table">
+<thead>
+    <tr>
+    <th>ID</th>
+    <th>Hits</th>
+    <th>Callback</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>No Name Specified</td>
+        <td>Unknown</td>
+        <td class="negative">None</td>
+    </tr>
+    <tr class="positive">
+        <td>Jimmy</td>
+        <td><i class="icon checkmark"></i> Approved</td>
+        <td>None</td>
+    </tr>
+    <tr>
+        <td>Jamie</td>
+        <td>Unknown</td>
+        <td class="positive"><i class="icon close"></i> Requires call</td>
+    </tr>
+    <tr class="negative">
+        <td>Jill</td>
+        <td>Unknown</td>
+        <td>None</td>
+    </tr>
+</tbody>
+</table>
+
+<script>
+    $(function () {
+        $('.ui.modal.callbacks').modal('attach events', '.button.callbacks', 'show');
+    });
+</script>
+
+<div class="ui modal callbacks">
+    <div class="header">
+        Header
+    </div>
+    <div class="content">
+        <p></p>
+    </div>
+    <div class="actions">
+        <div class="ui approve button">Approve</div>
+        <div class="ui button">Neutral</div>
+        <div class="ui cancel button">Cancel</div>
+    </div>
+</div>
