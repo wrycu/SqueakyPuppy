@@ -5,51 +5,63 @@
 <table class="ui celled table">
 <thead>
     <tr>
-    <th>User</th>
-    <th>E-mail</th>
-    <th>Assessments</th>
+    <th>Name</th>
+    <th>Hits</th>
+    <th>Users</th>
     </tr>
 </thead>
 <tbody>
     <tr>
         <td>No Name Specified</td>
+        <td>0</td>
         <td>Unknown</td>
-        <td class="negative">None</td>
     </tr>
     <tr class="positive">
         <td>Jimmy</td>
+        <td>0</td>
         <td><i class="icon checkmark"></i> Approved</td>
-        <td>None</td>
     </tr>
     <tr>
         <td>Jamie</td>
+        <td>0</td>
         <td>Unknown</td>
-        <td class="positive"><i class="icon close"></i> Requires call</td>
     </tr>
     <tr class="negative">
         <td>Jill</td>
+        <td>0</td>
         <td>Unknown</td>
-        <td>None</td>
     </tr>
 </tbody>
 </table>
 
 <script>
     $(function () {
-        $('.ui.modal.assessments').modal('attach events', '.button.assessments', 'show');
+        $('.ui.modal.assessments').modal({
+            onApprove : function() {
+                return false;
+            }
+        }).modal('attach events', '.button.assessments', 'show');
+
+        $('#create_assessment').form({
+            fields: {
+                name      : 'empty',
+                assignees : ['minCount[1]', 'empty'],
+            }
+        });
     });
 </script>
 
 <div class="ui modal assessments">
     <div class="header">
-        Header
+        Create new Assessment
     </div>
     <div class="content">
-        <p></p>
+        <p>
+            {{ render_form(assessment_form, "create_assessment") }}
+        </p>
     </div>
     <div class="actions">
-        <div class="ui approve button">Approve</div>
-        <div class="ui button">Neutral</div>
-        <div class="ui cancel button">Cancel</div>
+        <input type="submit" value="Create" form="create_assessment" class="ui positive button" formmethod="post">
+        <div class="ui button cancel">Cancel</div>
     </div>
 </div>

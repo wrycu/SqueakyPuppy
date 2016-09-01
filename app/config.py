@@ -19,6 +19,7 @@ conf = {
         'db': config.get('mysql', 'db'),
     },
 }
+
 engine = create_engine(
     'mysql+pymysql://{user}:{password}@{host}:{port}/{db}'.format(
         user=conf['mysql']['user'],

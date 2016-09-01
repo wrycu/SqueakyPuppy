@@ -1,5 +1,5 @@
 <button class="ui basic button users">
-    <i class="icon add circle"></i>
+    <i class="icon add user"></i>
     New user
 </button>
 <table class="ui celled table">
@@ -57,17 +57,7 @@
     </div>
     <div class="content">
         <p>
-            <form class="ui form" id="create_user">
-                <div class="field">
-                    <label>Username</label>
-                    <input type="text" name="username" placeholder="Username">
-                </div>
-                <div class="field">
-                    <label>E-mail address</label>
-                    <input type="text" name="email" placeholder="E-mail address">
-                </div>
-                <div class="ui error message"></div>
-            </form>
+            {{ render_form(user_form, "create_user") }}
         </p>
     </div>
     <div class="actions">

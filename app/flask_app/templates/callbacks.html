@@ -1,8 +1,21 @@
+{%- from "_formhelper.html" import render_form -%}
+{%- set success_header -%}
+    <div class="ui positive message"><i class="close icon"></i><div class="header">
+{%- endset -%}
+{%- set error_header -%}
+    <div class="ui negative message"><i class="close icon"></i><div class="header">
+{%- endset -%}
+{%- set title_content -%}
+    </div><p>
+{%- endset -%}
+{%- set footer -%}
+    </p></div>
+{%- endset -%}
 <button class="ui basic button callbacks">
     <i class="icon code"></i>
     New callback
 </button>
-<table class="ui celled table">
+<table class="ui celled sortable teal table">
 <thead>
     <tr>
     <th>ID</th>
@@ -11,45 +24,106 @@
     </tr>
 </thead>
 <tbody>
-    <tr>
-        <td>No Name Specified</td>
-        <td>Unknown</td>
-        <td class="negative">None</td>
-    </tr>
-    <tr class="positive">
-        <td>Jimmy</td>
-        <td><i class="icon checkmark"></i> Approved</td>
-        <td>None</td>
-    </tr>
-    <tr>
-        <td>Jamie</td>
-        <td>Unknown</td>
-        <td class="positive"><i class="icon close"></i> Requires call</td>
-    </tr>
-    <tr class="negative">
-        <td>Jill</td>
-        <td>Unknown</td>
-        <td>None</td>
-    </tr>
+    {%- for row in callbacks -%}
+        {% if row['hits'] == 0 %}
+        <tr class="negative">
+        {% else %}
+        <tr>
+        {% endif %}
+            <td>
+                {{ row['id'] }}
+            </td>
+            <td>
+                {{ row['hits'] }}
+            </td>
+            <td>
+                <i class="icon link trash delete_cb" data-id="{{ row['id'] }}"></i>
+                {{ row['name'] }}
+            </td>
+        </tr>
+    {%- endfor -%}
 </tbody>
 </table>
 
 <script>
     $(function () {
-        $('.ui.modal.callbacks').modal('attach events', '.button.callbacks', 'show');
+        $('.ui.modal.callbacks').modal({
+            onApprove : function() {
+                return false;
+            }
+        }).modal('attach events', '.button.callbacks', 'show');
+
+        $('#create_callback').form({
+            fields: {
+                callback : {
+                    rules: [
+                        {
+                            type   : 'contains[$h]',
+                            prompt : 'You must include a location for the host ($h)'
+                        },
+                        {
+                            type   : 'contains[$cb]',
+                            prompt : 'You must include a location for the callback ($cb)'
+                        },
+                        {
+                            type   : 'contains[$a]',
+                            prompt : 'You must include a location for the assessment ($a)'
+                        },
+                    ]
+                },
+            },
+        });
+
+        $('#create_callback').api({
+            action: 'create callback',
+            method: 'POST',
+            serializeForm: true,
+            onSuccess: function() {
+                $('#create_callback').trigger('reset');
+                $('.ui.modal.callbacks').modal('hide');
+                $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Callback created!{{ footer|safe }}');
+                $('#tab_callbacks').click()
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+            onError: function() {
+                return false;
+            },
+        });
+
+        $('.delete_cb').api({
+            action: 'delete callback',
+            method: 'DELETE',
+            serializeForm: true,
+            onSuccess: function() {
+                $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Callback deleted!{{ footer|safe }}');
+                $('#tab_callbacks').click()
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+            onError: function(errorMessage) {
+                $('div.a_message').html('{{ error_header|safe }} Error{{ title_content|safe }}' + errorMessage + '{{ footer|safe }}');
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+        });
     });
 </script>
 
 <div class="ui modal callbacks">
     <div class="header">
-        Header
+        Create new callback
     </div>
     <div class="content">
-        <p></p>
+        <p>
+            {{ render_form(callback_form, "create_callback") }}
+        </p>
     </div>
     <div class="actions">
-        <div class="ui approve button">Approve</div>
-        <div class="ui button">Neutral</div>
-        <div class="ui cancel button">Cancel</div>
+        <input type="submit" value="Create" form="create_callback" class="ui positive button" id="btn_create_callback" formmethod="post">
+        <div class="ui button cancel">Cancel</div>
     </div>
 </div>

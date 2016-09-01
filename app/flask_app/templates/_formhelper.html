@@ -1,0 +1,19 @@
+{%- macro render_form(form, form_id) %}
+<form class="ui form" id="{{ form_id }}">
+    {%- for field in form %}
+        {{ render_field(field) }}
+    {% endfor -%}
+    <div class="ui error message"></div>
+</form>
+{% endmacro -%}
+
+{%- macro render_field(field) %}
+    <div class="field">
+        {{ field.label }}
+        {% if field.type == "SelectMultipleField" %}
+            {{ field(class_="ui fluid search dropdown") }}
+        {% else %}
+            {{ field }}
+        {% endif %}
+    </div>
+{% endmacro -%}

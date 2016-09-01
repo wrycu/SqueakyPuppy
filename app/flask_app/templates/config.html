@@ -1,13 +1,16 @@
-<button class="ui basic button blacklists">
-    <i class="world icon"></i>
-    Blacklist domain
+CONFIG TAB
+
+{#
+<button class="ui basic button callbacks">
+    <i class="icon code"></i>
+    New callback
 </button>
 <table class="ui celled table">
 <thead>
     <tr>
-    <th>User</th>
-    <th>E-mail</th>
-    <th>Assessments</th>
+    <th>ID</th>
+    <th>Hits</th>
+    <th>Callback</th>
     </tr>
 </thead>
 <tbody>
@@ -36,31 +39,39 @@
 
 <script>
     $(function () {
-        $('.ui.modal.blacklists').modal({
+        $('.ui.modal.callbacks').modal({
             onApprove : function() {
                 return false;
             }
-        }).modal('attach events', '.button.blacklists', 'show');
+        }).modal('attach events', '.button.callbacks', 'show');
 
-        $('#create_blacklist').form({
+        $('#create_callback').form({
             fields: {
-                domain : 'empty',
+                callback : {
+                    rules: [
+                        {
+                            type   : 'regExp[/^[a-z0-9_-]{4,16}$/]',
+                            prompt : 'Special regex'
+                        },
+                    ]
+                },
             }
         });
     });
 </script>
 
-<div class="ui modal blacklists">
+<div class="ui modal callbacks">
     <div class="header">
-        Create new blacklist
+        Create new callback
     </div>
     <div class="content">
         <p>
-            {{ render_form(blacklist_form, "create_blacklist") }}
+            {{ render_form(callback_form, "create_callback") }}
         </p>
     </div>
     <div class="actions">
-        <input type="submit" value="Create" form="create_blacklist" class="ui positive button" formmethod="post">
+        <input type="submit" value="Create" form="create_callback" class="ui positive button" formmethod="post">
         <div class="ui button cancel">Cancel</div>
     </div>
 </div>
+#}
