@@ -9,7 +9,9 @@
 
 {%- macro render_field(field) %}
     <div class="field">
-        {{ field.label }}
+        {% if field.type != "HiddenField" %}
+            {{ field.label }}
+        {% endif %}
         {% if field.type == "SelectMultipleField" %}
             {{ field(class_="ui fluid search dropdown") }}
         {% else %}
@@ -17,3 +19,16 @@
         {% endif %}
     </div>
 {% endmacro -%}
+
+{%- set success_header -%}
+    <div class="ui positive message"><i class="close icon"></i><div class="header">
+{%- endset -%}
+{%- set error_header -%}
+    <div class="ui negative message"><i class="close icon"></i><div class="header">
+{%- endset -%}
+{%- set title_content -%}
+    </div><p>
+{%- endset -%}
+{%- set footer -%}
+    </p></div>
+{%- endset -%}

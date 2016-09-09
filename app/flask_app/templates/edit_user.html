@@ -1,0 +1,15 @@
+{%- from "_formhelper.html" import render_form -%}
+<div class="ui modal edit_user">
+    <div class="header">
+        Edit user
+    </div>
+    <div class="content">
+        <p>
+            {{ render_form(edit_user_form, "edit_user") }}
+        </p>
+    </div>
+    <div class="actions">
+        <input type="submit" value="Update" form="edit_user" class="ui positive button" id="btn_edit_user" formmethod="post">
+        <div class="ui button cancel">Cancel</div>
+    </div>
+</div>

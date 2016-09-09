@@ -80,3 +80,93 @@ def callback(cb_id=None):
             return 'Bad data', 400
         config.CALLBACK_TABLE.insert(dict(request.form)).execute()
         return Response(json.dumps({'success': True}), mimetype='application/json')
+
+
+@squeaky_puppy.route('/user', methods=['GET', 'POST', 'DELETE'])
+@squeaky_puppy.route('/user/<string:user_id>', methods=['GET', 'POST', 'DELETE'])
+def user(user_id=None):
+    if request.method == 'GET':
+        if not user_id:
+            user_form = UserForm()
+
+            results = select([
+                config.USER_TABLE.c.id,
+                config.USER_TABLE.c.name,
+                config.USER_TABLE.c.email,
+            ]).execute().fetchall()
+
+            users = []
+
+            for result in results:
+                users.append({
+                    'id': result.id,
+                    'name': result.name,
+                    'email': result.email,
+                })
+
+            return render_template(
+                'users.html',
+                user_form=user_form,
+                users=users,
+            )
+        else:
+            user_data = select([
+                config.USER_TABLE,
+            ]).where(
+                config.USER_TABLE.c.id == user_id
+            ).execute().fetchone()
+            edit_user_form = EditUserForm(obj=user_data)
+            return render_template(
+                'edit_user.html',
+                edit_user_form=edit_user_form,
+            )
+    elif request.method == 'POST':
+        # update
+        user_form = UserForm(obj=request.data)
+        if not user_form.validate():
+            return 'Bad data', 400
+        if not request.form['id']:
+            config.USER_TABLE.insert(dict(request.form)).execute()
+        else:
+            config.USER_TABLE.update(config.USER_TABLE.c.id == request.form['id'], dict(request.form)).execute()
+        return Response(json.dumps({'success': True}), mimetype='application/json')
+    elif request.method == 'DELETE':
+        try:
+            config.USER_TABLE.delete(
+                config.USER_TABLE.c.id == user_id
+            ).execute()
+        except Exception as e:
+            return Response(json.dumps({'success': False, 'error': str(e)}), mimetype='application/json'), 500
+        return Response(json.dumps({'success': True}), mimetype='application/json')
+
+
+@squeaky_puppy.route('/assessment', methods=['GET', 'POST', 'DELETE'])
+@squeaky_puppy.route('/assessment/<string:assessment_id>', methods=['GET', 'POST', 'DELETE'])
+def assessment(assessment_id=None):
+    if request.method == 'GET':
+        return 'get'
+    elif request.method == 'POST':
+        return 'post'
+    elif request.method == 'DELETE':
+        return 'delete'
+
+
+@squeaky_puppy.route('/domain', methods=['GET', 'POST', 'DELETE'])
+@squeaky_puppy.route('/domain/<string:domain_id>', methods=['GET', 'POST', 'DELETE'])
+def domain(domain_id=None):
+    if request.method == 'GET':
+        return 'get'
+    elif request.method == 'POST':
+        return 'post'
+    elif request.method == 'DELETE':
+        return 'delete'
+
+
+@squeaky_puppy.route('/conf', methods=['GET', 'POST', 'DELETE'])
+def conf():
+    if request.method == 'GET':
+        return 'get'
+    elif request.method == 'POST':
+        return 'post'
+    elif request.method == 'DELETE':
+        return 'delete'

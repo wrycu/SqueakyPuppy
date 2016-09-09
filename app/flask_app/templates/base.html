@@ -17,7 +17,7 @@
     <a class="item" id ="tab_callbacks" data-tab="tab_callbacks">
         Callbacks
     </a>
-    <a class="item" data-tab="tab_users">
+    <a class="item" id="tab_users" data-tab="tab_users">
         Users
     </a>
     <a class="item" data-tab="tab_assessments">
@@ -44,10 +44,8 @@
     a
 </div>
 <div class="ui tab" id="tab_callbacks_content" data-tab="tab_callbacks">
-{#    {% include "callbacks.html" %}#}
 </div>
-<div class="ui tab" data-tab="tab_users">
-    {% include "users.html" %}
+<div class="ui tab" id="tab_users_content" data-tab="tab_users">
 </div>
 <div class="ui tab" data-tab="tab_assessments">
     {% include "assessments.html" %}
@@ -70,6 +68,10 @@
             'get youtube'       : '/youtube.html',
             'create callback'   : '{{ url_for('squeaky_puppy.callback') }}',
             'delete callback'   : '{{ url_for('squeaky_puppy.callback') }}/{id}',
+            'get users'         : '{{ url_for('squeaky_puppy.user') }}',
+            'create user'       : '{{ url_for('squeaky_puppy.user') }}',
+            'modify user'       : '{{ url_for('squeaky_puppy.user') }}/{id}',
+            'delete user'       : '{{ url_for('squeaky_puppy.user') }}/{id}',
         };
 
         $('#tab_callbacks').api({
@@ -79,6 +81,17 @@
             stateContext : '#tab_callbacks_content',
             onSuccess: function(response) {
                 $('#tab_callbacks_content').html(response);
+                $('table').tablesort()
+            },
+        });
+
+        $('#tab_users').api({
+            action: 'get users',
+            method : 'GET',
+            dataType: 'html',
+            stateContext : '#tab_users_content',
+            onSuccess: function(response) {
+                $('#tab_users_content').html(response);
                 $('table').tablesort()
             },
         });

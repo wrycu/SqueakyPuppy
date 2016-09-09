@@ -1,4 +1,4 @@
-from wtforms import Form, TextField, StringField, SelectMultipleField
+from wtforms import Form, TextField, StringField, SelectMultipleField, HiddenField
 from widgets import *
 
 
@@ -8,8 +8,12 @@ class MyForm(Form):
 
 
 class UserForm(Form):
-    username = StringField('Username')
+    name = StringField('Name')
     email = StringField('E-mail address')
+
+
+class EditUserForm(UserForm):
+    id = HiddenField()
 
 
 class AssessmentForm(Form):
