@@ -1,5 +1,7 @@
 from wtforms import Form, TextField, StringField, SelectMultipleField, HiddenField
+from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from widgets import *
+from app import config
 
 
 class MyForm(Form):
@@ -18,7 +20,21 @@ class EditUserForm(UserForm):
 
 class AssessmentForm(Form):
     name = StringField('Name')
-    assignees = SelectMultipleField('Assignees', choices=[(1, 'tim'), (2, 'jeremy'), (3, 'kevin')])
+    assignees = SelectMultipleField(
+        'Assignees',
+        choices=[]
+    )
+
+    def __init__(self, **kwargs):
+        super(AssessmentForm, self).__init__(**kwargs)
+        self.assignees.choices = list(select([
+            config.USER_TABLE.c.id,
+            config.USER_TABLE.c.name,
+        ]).execute().fetchall())
+
+
+class EditAssessmentForm(AssessmentForm):
+    id = HiddenField()
 
 
 class BlacklistForm(Form):

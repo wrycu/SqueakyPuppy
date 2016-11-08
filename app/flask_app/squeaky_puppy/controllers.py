@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, Response, request
-from sqlalchemy import select, join, func
+from sqlalchemy import select, join, func, delete
 from forms import *
 import json
+from datetime import datetime
 from app import config
 
 squeaky_puppy = Blueprint(
@@ -144,11 +145,97 @@ def user(user_id=None):
 @squeaky_puppy.route('/assessment/<string:assessment_id>', methods=['GET', 'POST', 'DELETE'])
 def assessment(assessment_id=None):
     if request.method == 'GET':
-        return 'get'
+        if not assessment_id:
+            assessment_form = AssessmentForm()
+
+            results = select([
+                config.ASSESSMENT_TABLE.c.id,
+                config.ASSESSMENT_TABLE.c.name,
+                config.ASSESSMENT_TABLE.c.date_started,
+            ]).execute().fetchall()
+
+            assessments = []
+
+            for result in results:
+                assessments.append({
+                    'id': result.id,
+                    'name': result.name,
+                    'date_started': result.date_started,
+                })
+
+            return render_template(
+                'assessments.html',
+                assessment_form=assessment_form,
+                assessments=assessments,
+            )
+        else:
+            assessment_data = select([
+                config.ASSESSMENT_TABLE,
+            ]).where(
+                config.ASSESSMENT_TABLE.c.id == assessment_id
+            ).execute().fetchone()
+            assignee_data = select([
+                config.NOTIFY_TABLE,
+            ]).where(
+                config.NOTIFY_TABLE.c.assessment_id == assessment_id
+            ).execute().fetchall()
+            full_data = {
+                'name': assessment_data['name'],
+                'assignees': [],
+                'id': assessment_id,
+            }
+            for assignee in assignee_data:
+                full_data['assignees'].append(assignee['user_id'])
+            edit_assessment_form = EditAssessmentForm(obj=Struct(**full_data))
+            return render_template(
+                'edit_assessment.html',
+                edit_assessment_form=edit_assessment_form,
+            )
     elif request.method == 'POST':
-        return 'post'
+        # update / create
+        assessment_form = AssessmentForm(obj=request.data)
+        if not assessment_form.validate():
+            return 'Bad data', 400
+        if not assessment_id:
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            assessment_id = config.ASSESSMENT_TABLE.insert({
+                'name': request.form['name'],
+                'date_started': now,
+            }).execute().inserted_primary_key[0]
+
+            for assignee in request.form.getlist('assignees'):
+                config.NOTIFY_TABLE.insert({
+                    'assessment_id': assessment_id,
+                    'user_id': assignee,
+                }).execute()
+        else:
+            config.ASSESSMENT_TABLE.update(
+                config.ASSESSMENT_TABLE.c.id == assessment_id,
+                {'name': request.form['name']}
+            ).execute()
+            config.NOTIFY_TABLE.delete(
+                config.NOTIFY_TABLE.c.assessment_id == assessment_id
+            ).execute()
+            for assignee in request.form.getlist('assignees'):
+                config.NOTIFY_TABLE.insert({
+                    'assessment_id': assessment_id,
+                    'user_id': assignee,
+                }).execute()
+        return Response(json.dumps({'success': True}), mimetype='application/json')
     elif request.method == 'DELETE':
-        return 'delete'
+        try:
+            config.HIT_TABLE.delete(
+                config.HIT_TABLE.c.assessment_id == assessment_id
+            ).execute()
+            config.NOTIFY_TABLE.delete(
+                config.NOTIFY_TABLE.c.assessment_id == assessment_id
+            ).execute()
+            config.ASSESSMENT_TABLE.delete(
+                config.ASSESSMENT_TABLE.c.id == assessment_id
+            ).execute()
+        except Exception as e:
+            return Response(json.dumps({'success': False, 'error': str(e)}), mimetype='application/json'), 500
+        return Response(json.dumps({'success': True}), mimetype='application/json')
 
 
 @squeaky_puppy.route('/domain', methods=['GET', 'POST', 'DELETE'])
@@ -170,3 +257,8 @@ def conf():
         return 'post'
     elif request.method == 'DELETE':
         return 'delete'
+
+
+class Struct:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
