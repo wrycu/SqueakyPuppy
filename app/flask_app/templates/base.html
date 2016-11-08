@@ -20,7 +20,7 @@
     <a class="item" id="tab_users" data-tab="tab_users">
         Users
     </a>
-    <a class="item" data-tab="tab_assessments">
+    <a class="item" id="tab_assessments" data-tab="tab_assessments">
         Assessments
     </a>
     <a class="item" data-tab="tab_blacklist">
@@ -47,8 +47,7 @@
 </div>
 <div class="ui tab" id="tab_users_content" data-tab="tab_users">
 </div>
-<div class="ui tab" data-tab="tab_assessments">
-    {% include "assessments.html" %}
+<div class="ui tab" id="tab_assessments_content" data-tab="tab_assessments">
 </div>
 <div class="ui tab" data-tab="tab_blacklist">
     {% include "blacklists.html" %}
@@ -60,18 +59,25 @@
     {% include "config.html" %}
 </div>
 
+
+
+
 <script>
     $(function () {
         $('.menu .item').tab();
         $.fn.api.settings.api = {
-            'get callbacks'     : '{{ url_for('squeaky_puppy.callback') }}',
-            'get youtube'       : '/youtube.html',
-            'create callback'   : '{{ url_for('squeaky_puppy.callback') }}',
-            'delete callback'   : '{{ url_for('squeaky_puppy.callback') }}/{id}',
-            'get users'         : '{{ url_for('squeaky_puppy.user') }}',
-            'create user'       : '{{ url_for('squeaky_puppy.user') }}',
-            'modify user'       : '{{ url_for('squeaky_puppy.user') }}/{id}',
-            'delete user'       : '{{ url_for('squeaky_puppy.user') }}/{id}',
+            'get callbacks'      : '{{ url_for('squeaky_puppy.callback') }}',
+            'get youtube'        : '/youtube.html',
+            'create callback'    : '{{ url_for('squeaky_puppy.callback') }}',
+            'delete callback'    : '{{ url_for('squeaky_puppy.callback') }}/{id}',
+            'get users'          : '{{ url_for('squeaky_puppy.user') }}',
+            'create user'        : '{{ url_for('squeaky_puppy.user') }}',
+            'modify user'        : '{{ url_for('squeaky_puppy.user') }}/{id}',
+            'delete user'        : '{{ url_for('squeaky_puppy.user') }}/{id}',
+            'get assessments'    : '{{ url_for('squeaky_puppy.assessment') }}',
+            'create assessment' : '{{ url_for('squeaky_puppy.assessment') }}',
+            'modify assessment' : '{{ url_for('squeaky_puppy.assessment') }}/{id}',
+            'delete assessment' : '{{ url_for('squeaky_puppy.assessment') }}/{id}',
         };
 
         $('#tab_callbacks').api({
@@ -92,6 +98,17 @@
             stateContext : '#tab_users_content',
             onSuccess: function(response) {
                 $('#tab_users_content').html(response);
+                $('table').tablesort()
+            },
+        });
+
+        $('#tab_assessments').api({
+            action: 'get assessments',
+            method : 'GET',
+            dataType: 'html',
+            stateContext : '#tab_assessments_content',
+            onSuccess: function(response) {
+                $('#tab_assessments_content').html(response);
                 $('table').tablesort()
             },
         });

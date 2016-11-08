@@ -32,11 +32,27 @@
         <td>0</td>
         <td>Unknown</td>
     </tr>
+    {%- for row in assessments -%}
+        <tr>
+            <td>
+                <i class="icon link trash delete_assessment" data-id="{{ row['id'] }}"></i>
+                <i class="icon link edit edit_assessment" data-id="{{ row['id'] }}"></i>
+                {{ row['name'] }}
+            </td>
+            <td>
+                {{ row['hits'] }}
+            </td>
+            <td>
+                {{ row['users'] }}
+            </td>
+        </tr>
+    {%- endfor -%}
 </tbody>
 </table>
 
 <script>
     $(function () {
+        $('.ui.dropdown').dropdown();
         $('.ui.modal.assessments').modal({
             onApprove : function() {
                 return false;
@@ -48,6 +64,80 @@
                 name      : 'empty',
                 assignees : ['minCount[1]', 'empty'],
             }
+        });
+
+        $('#create_assessment').api({
+            action: 'create assessment',
+            method: 'POST',
+            serializeForm: true,
+            onSuccess: function() {
+                $('#create_assessment').trigger('reset');
+                $('.ui.dropdown').dropdown('clear');
+                $('.ui.modal.assessments').modal('hide');
+                $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Assessment created!{{ footer|safe }}');
+                $('#tab_assessments').click()
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+            onError: function() {
+                return false;
+            },
+        });
+
+        $('.delete_assessment').api({
+            action: 'delete assessment',
+            method: 'DELETE',
+            serializeForm: true,
+            onSuccess: function() {
+                $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Assessment deleted!{{ footer|safe }}');
+                $('#tab_assessments').click()
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+            onError: function(errorMessage) {
+                $('div.a_message').html('{{ error_header|safe }} Error{{ title_content|safe }}' + errorMessage + '{{ footer|safe }}');
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+        });
+
+        $('.edit_assessment').api({
+            action: 'modify assessment',
+            method : 'GET',
+            dataType: 'html',
+            stateContext : '#edit_assessment_container',
+            onSuccess: function(response) {
+                $('.ui.modal.edit_assessment').html("");
+                $('#edit_assessment_container').html(response);
+                $('.ui.dropdown').dropdown();
+                $('#edit_assessment_modal').modal({
+                    onApprove : function() {
+                        return false;
+                    },
+                }).modal('show');
+                $('#edit_assessment').api({
+                    action: 'modify assessment',
+                    method: 'POST',
+                    serializeForm: true,
+                    onSuccess: function() {
+                        $('.ui.modal.edit_assessment').modal('hide');
+                        $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Assessment updated!{{ footer|safe }}');
+                        $('#tab_assessments').click()
+                        $('.message .close').on('click', function() {
+                            $(this).closest('.message').transition('fade');
+                        });
+                    },
+                    onError: function() {
+                        return false;
+                    },
+                    urlData: {
+                        id:  $('#id').val()
+                    },
+                });
+            },
         });
     });
 </script>
@@ -62,7 +152,9 @@
         </p>
     </div>
     <div class="actions">
-        <input type="submit" value="Create" form="create_assessment" class="ui positive button" formmethod="post">
+        <input type="submit" value="Create" form="create_assessment" class="ui positive button" id="btn_create_assessment" formmethod="post">
         <div class="ui button cancel">Cancel</div>
     </div>
 </div>
+
+<div id="edit_assessment_container"></div>
