@@ -94,16 +94,30 @@ def user(user_id=None):
                 config.USER_TABLE.c.id,
                 config.USER_TABLE.c.name,
                 config.USER_TABLE.c.email,
-            ]).execute().fetchall()
+                config.ASSESSMENT_TABLE.c.name.label('assessment'),
+            ]).select_from(
+                config.USER_TABLE.join(
+                    config.NOTIFY_TABLE,
+                    config.NOTIFY_TABLE.c.user_id == config.USER_TABLE.c.id
+                ).join(
+                    config.ASSESSMENT_TABLE,
+                    config.ASSESSMENT_TABLE.c.id == config.NOTIFY_TABLE.c.assessment_id
+                )
+            ).execute().fetchall()
 
             users = []
+            user_mapping = {}
 
             for result in results:
-                users.append({
-                    'id': result.id,
-                    'name': result.name,
-                    'email': result.email,
-                })
+                if result.id not in user_mapping:
+                    user_mapping[result.id] = len(users)
+                    users.append({
+                        'id': result.id,
+                        'name': result.name,
+                        'email': result.email,
+                        'assessments': [],
+                    })
+                users[user_mapping[result.id]]['assessments'].append(result.assessment)
 
             return render_template(
                 'users.html',

@@ -12,11 +12,6 @@
     </tr>
 </thead>
 <tbody>
-    <tr>
-        <td>No Name Specified</td>
-        <td>Unknown</td>
-        <td class="negative">None</td>
-    </tr>
     {%- for row in users -%}
         <tr>
             <td>
@@ -28,7 +23,13 @@
                 {{ row['email'] }}
             </td>
             <td>
-                {{ row['assessments'] }}
+                <div class="ui horizontal divided list">
+                {% for assessment in row['assessments'] %}
+                    <div class="item">
+                    {{ assessment }}
+                    </div>
+                {% endfor %}
+                </div>
             </td>
         </tr>
     {%- endfor -%}
