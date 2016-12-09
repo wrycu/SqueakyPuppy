@@ -21,9 +21,16 @@
             </td>
             <td>
                 {{ row['hits'] }}
+                <i class="icon link search view_assessment" data-id="{{ row['id'] }}"></i>
             </td>
             <td>
-                {{ row['users'] }}
+                <div class="ui horizontal divided list">
+                {% for user in row['users'] %}
+                    <div class="item">
+                    {{ user[0] }}
+                    </div>
+                {% endfor %}
+                </div>
             </td>
         </tr>
     {%- endfor -%}
@@ -119,6 +126,23 @@
                 });
             },
         });
+
+        $('.view_assessment').api({
+            action: 'view assessment',
+            method : 'GET',
+            dataType: 'html',
+            stateContext : '#view_assessment_container',
+            onSuccess: function(response) {
+                $('.ui.modal.view_assessment').html("");
+                $('#view_assessment_container').html(response);
+                $('.ui.dropdown').dropdown();
+                $('#view_assessment_modal').modal({
+                    onApprove : function() {
+                        return false;
+                    },
+                }).modal('show');
+            },
+        });
     });
 </script>
 
@@ -138,3 +162,4 @@
 </div>
 
 <div id="edit_assessment_container"></div>
+<div id="view_assessment_container"></div>

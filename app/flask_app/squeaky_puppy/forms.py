@@ -1,4 +1,4 @@
-from wtforms import Form, TextField, StringField, SelectMultipleField, HiddenField
+from wtforms import Form, TextField, StringField, SelectMultipleField, HiddenField, FieldList
 from wtforms.ext.sqlalchemy.fields import QuerySelectMultipleField
 from widgets import *
 from app import config

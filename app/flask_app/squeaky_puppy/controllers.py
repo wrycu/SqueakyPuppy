@@ -157,10 +157,33 @@ def assessment(assessment_id=None):
             assessments = []
 
             for result in results:
+                hits = len(select([
+                    config.HIT_TABLE.c.id,
+                ]).where(
+                    config.HIT_TABLE.c.assessment_id == result.id
+                ).execute().fetchall())
+
+                users = select([
+                    config.USER_TABLE.c.name,
+                ]).select_from(
+                    config.ASSESSMENT_TABLE.join(
+                        config.NOTIFY_TABLE,
+                        config.NOTIFY_TABLE.c.assessment_id == config.ASSESSMENT_TABLE.c.id,
+                    ).join(
+                        config.USER_TABLE,
+                        config.USER_TABLE.c.id == config.NOTIFY_TABLE.c.user_id
+                    )
+                ).where(
+                    config.NOTIFY_TABLE.c.assessment_id == result.id
+                ).execute().fetchall()
+                # delete all the data (jk)
+
                 assessments.append({
                     'id': result.id,
                     'name': result.name,
                     'date_started': result.date_started,
+                    'hits': hits,
+                    'users': users,
                 })
 
             return render_template(
@@ -193,6 +216,7 @@ def assessment(assessment_id=None):
             )
     elif request.method == 'POST':
         # update / create
+        # delete all the data
         assessment_form = AssessmentForm(obj=request.data)
         if not assessment_form.validate():
             return 'Bad data', 400
@@ -236,6 +260,40 @@ def assessment(assessment_id=None):
         except Exception as e:
             return Response(json.dumps({'success': False, 'error': str(e)}), mimetype='application/json'), 500
         return Response(json.dumps({'success': True}), mimetype='application/json')
+
+
+@squeaky_puppy.route('/assessment/view', methods=['GET'])
+@squeaky_puppy.route('/assessment/view/<assessment_id>', methods=['GET'])
+def view_assessment(assessment_id):
+    ass_dict = {
+        'name': 'hi',
+        'hits': [],
+    }
+
+    results = select([
+        config.CALLBACK_TABLE.c.callback,
+        config.HIT_TABLE.c.referrer,
+        config.HIT_TABLE.c.date_captured,
+    ]).select_from(
+        config.HIT_TABLE.join(
+            config.CALLBACK_TABLE,
+            config.CALLBACK_TABLE.c.id == config.HIT_TABLE.c.callback_id
+        )
+    ).where(
+        config.HIT_TABLE.c.assessment_id == assessment_id
+    ).execute().fetchall()
+
+    for result in results:
+        ass_dict['hits'].append({
+            'name': result.callback,
+            'date': result.date_captured,
+            'referrer': result.referrer,
+        })
+
+    return render_template(
+        'view_assessment.html',
+        view_assessment_form=ass_dict
+    )
 
 
 @squeaky_puppy.route('/domain', methods=['GET', 'POST', 'DELETE'])
