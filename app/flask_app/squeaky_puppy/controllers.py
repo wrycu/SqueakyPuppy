@@ -314,11 +314,36 @@ def view_assessment(assessment_id):
 @squeaky_puppy.route('/domain/<string:domain_id>', methods=['GET', 'POST', 'DELETE'])
 def domain(domain_id=None):
     if request.method == 'GET':
-        return 'get'
+        if domain_id:
+            return 'lolz'
+        else:
+            blacklist = BlacklistForm()
+            blacklists = []
+            results = select([
+                config.BLACKLIST_TABLE.c.id,
+                config.BLACKLIST_TABLE.c.domain,
+            ]).execute().fetchall()
+            for result in results:
+                blacklists.append({
+                    'id': result.id,
+                    'domain': result.domain,
+                })
+            return render_template(
+                'blacklists.html',
+                blacklists=blacklists,
+                blacklist_form=blacklist,
+            )
     elif request.method == 'POST':
-        return 'post'
+        config.BLACKLIST_TABLE.insert(dict(request.form)).execute()
+        return Response(json.dumps({'success': True}), mimetype='application/json')
     elif request.method == 'DELETE':
-        return 'delete'
+        try:
+            config.BLACKLIST_TABLE.delete(
+                config.BLACKLIST_TABLE.c.id == domain_id
+            ).execute()
+        except Exception as e:
+            return Response(json.dumps({'success': False, 'error': str(e)}), mimetype='application/json'), 500
+        return Response(json.dumps({'success': True}), mimetype='application/json')
 
 
 @squeaky_puppy.route('/conf', methods=['GET', 'POST', 'DELETE'])

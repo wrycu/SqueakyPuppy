@@ -6,37 +6,24 @@
 <table class="ui celled table">
 <thead>
     <tr>
-    <th>User</th>
-    <th>E-mail</th>
-    <th>Assessments</th>
+        <th>Name</th>
     </tr>
 </thead>
 <tbody>
-    <tr>
-        <td>No Name Specified</td>
-        <td>Unknown</td>
-        <td class="negative">None</td>
-    </tr>
-    <tr class="positive">
-        <td>Jimmy</td>
-        <td><i class="icon checkmark"></i> Approved</td>
-        <td>None</td>
-    </tr>
-    <tr>
-        <td>Jamie</td>
-        <td>Unknown</td>
-        <td class="positive"><i class="icon close"></i> Requires call</td>
-    </tr>
-    <tr class="negative">
-        <td>Jill</td>
-        <td>Unknown</td>
-        <td>None</td>
-    </tr>
+    {%- for row in blacklists -%}
+        <tr>
+            <td>
+                <i class="icon link trash delete_blacklist" data-id="{{ row['id'] }}"></i>
+                {{ row['domain'] }}
+            </td>
+        </tr>
+    {%- endfor -%}
 </tbody>
 </table>
 
 <script>
     $(function () {
+        $('.ui.dropdown').dropdown();
         $('.ui.modal.blacklists').modal({
             onApprove : function() {
                 return false;
@@ -45,15 +32,90 @@
 
         $('#create_blacklist').form({
             fields: {
-                domain : 'empty',
+                name      : 'empty',
+                assignees : ['minCount[1]', 'empty'],
             }
+        });
+
+        $('#create_blacklist').api({
+            action: 'create blacklist',
+            method: 'POST',
+            serializeForm: true,
+            onSuccess: function() {
+                $('#create_blacklist').trigger('reset');
+                $('.ui.dropdown').dropdown('clear');
+                $('.ui.modal.blacklists').modal('hide');
+                $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Blacklist added!{{ footer|safe }}');
+                $('#tab_blacklists').click()
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+            onError: function() {
+                return false;
+            },
+        });
+
+        $('.delete_blacklist').api({
+            action: 'delete blacklist',
+            method: 'DELETE',
+            serializeForm: true,
+            onSuccess: function() {
+                $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Blacklist deleted!{{ footer|safe }}');
+                $('#tab_blacklists').click()
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+            onError: function(errorMessage) {
+                $('div.a_message').html('{{ error_header|safe }} Error{{ title_content|safe }}' + errorMessage + '{{ footer|safe }}');
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+        });
+
+        $('.edit_blacklist').api({
+            action: 'modify blacklist',
+            method : 'GET',
+            dataType: 'html',
+            stateContext : '#edit_blacklist_container',
+            onSuccess: function(response) {
+                $('.ui.modal.edit_blacklist').html("");
+                $('#edit_blacklist_container').html(response);
+                $('.ui.dropdown').dropdown();
+                $('#edit_blacklist_modal').modal({
+                    onApprove : function() {
+                        return false;
+                    },
+                }).modal('show');
+                $('#edit_blacklist').api({
+                    action: 'modify blacklist',
+                    method: 'POST',
+                    serializeForm: true,
+                    onSuccess: function() {
+                        $('.ui.modal.edit_blacklist').modal('hide');
+                        $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Domain blacklist updated!{{ footer|safe }}');
+                        $('#tab_blacklists').click()
+                        $('.message .close').on('click', function() {
+                            $(this).closest('.message').transition('fade');
+                        });
+                    },
+                    onError: function() {
+                        return false;
+                    },
+                    urlData: {
+                        id:  $('#id').val()
+                    },
+                });
+            },
         });
     });
 </script>
 
 <div class="ui modal blacklists">
     <div class="header">
-        Create new blacklist
+        Create new Blacklist
     </div>
     <div class="content">
         <p>
@@ -61,7 +123,10 @@
         </p>
     </div>
     <div class="actions">
-        <input type="submit" value="Create" form="create_blacklist" class="ui positive button" formmethod="post">
+        <input type="submit" value="Create" form="create_blacklist" class="ui positive button" id="btn_create_blacklist" formmethod="post">
         <div class="ui button cancel">Cancel</div>
     </div>
 </div>
+
+<div id="edit_blacklist_container"></div>
+<div id="view_blacklist_container"></div>
