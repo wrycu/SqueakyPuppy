@@ -314,11 +314,33 @@ def view_assessment(assessment_id):
 @squeaky_puppy.route('/domain/<string:domain_id>', methods=['GET', 'POST', 'DELETE'])
 def domain(domain_id=None):
     if request.method == 'GET':
-        return 'get'
+        domains = []
+        results = select([
+            config.BLACKLIST_TABLE.c.id,
+            config.BLACKLIST_TABLE.c.domain,
+        ]).execute().fetchall()
+        for result in results:
+            domains.append({'id': result.id, 'domain': result.domain})
+        blacklist_form = BlacklistForm()
+        return render_template(
+            'blacklist.html',
+            domains=domains,
+            blacklist_form=blacklist_form,
+        )
     elif request.method == 'POST':
-        return 'post'
+        try:
+            config.BLACKLIST_TABLE.insert({"domain": request.form['domain']}).execute()
+            return Response(json.dumps({'success': True}), mimetype='application/json')
+        except Exception as e:
+            # TODO: this won't actually have an exception if the same domain is repeated
+            return Response(json.dumps({'success': False, 'error': str(e)}), mimetype='application/json'), 409
     elif request.method == 'DELETE':
-        return 'delete'
+        if not domain_id:
+            return Response(json.dumps({'success': False, 'error': 'You must include a domain'}), mimetype='application/json'), 400
+        config.BLACKLIST_TABLE.delete(
+            config.BLACKLIST_TABLE.c.id == domain_id
+        ).execute()
+        return Response(json.dumps({'success': True}), mimetype='application/json')
 
 
 @squeaky_puppy.route('/conf', methods=['GET', 'POST', 'DELETE'])

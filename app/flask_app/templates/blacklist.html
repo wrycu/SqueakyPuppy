@@ -1,0 +1,89 @@
+{%- from "_formhelper.html" import render_form, success_header, error_header, title_content, footer -%}
+<div class="ui grid">
+    <div class="row">
+        <button class="ui basic button blacklists">
+            <i class="world icon"></i>
+            Blacklist domain
+        </button>
+    </div>
+    <div class=" row"><div class="four wide column">
+        <div class="ui celled list">
+            {%- for domain in domains -%}
+            <div class="item">
+                <i class="icon link trash delete_domain" data-id="{{ domain['id'] }}"></i>
+                <div class="content">
+                    {{ domain['domain'] }}
+                </div>
+            </div>
+            {%- endfor -%}
+        </div>
+    </div></div>
+</div>
+
+<script>
+    $(function () {
+        $('.ui.modal.blacklists').modal({
+            onApprove : function() {
+                return false;
+            }
+        }).modal('attach events', '.button.blacklists', 'show');
+
+        $('#create_blacklist').form({
+            fields: {
+                domain : 'empty',
+            }
+        });
+
+        $('#create_blacklist').api({
+            action: 'create blacklist',
+            method: 'POST',
+            serializeForm: true,
+            onSuccess: function() {
+                $('#create_blacklist').trigger('reset');
+                $('.ui.modal.blacklists').modal('hide');
+                $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Domain blacklisted!{{ footer|safe }}');
+                $('#tab_blacklist').click();
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+            onError: function() {
+                return false;
+            },
+        });
+
+        $('.delete_domain').api({
+            action: 'delete blacklist',
+            method: 'DELETE',
+            serializeForm: true,
+            onSuccess: function() {
+                $('div.a_message').html('{{ success_header|safe }}Success{{ title_content|safe }}Domain blacklist removed!{{ footer|safe }}');
+                $('#tab_blacklist').click()
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+            onError: function(errorMessage) {
+                $('div.a_message').html('{{ error_header|safe }} Error{{ title_content|safe }}' + errorMessage + '{{ footer|safe }}');
+                $('.message .close').on('click', function() {
+                    $(this).closest('.message').transition('fade');
+                });
+            },
+        });
+    });
+</script>
+
+<div class="ui modal blacklists">
+    <div class="header">
+        Create new blacklist
+    </div>
+    <div class="content">
+        <p>
+            {{ render_form(blacklist_form, "create_blacklist") }}
+        </p>
+    </div>
+    <div class="actions">
+        <input type="submit" value="Create" form="create_blacklist" class="ui positive button" formmethod="post">
+        <div class="ui button cancel">Cancel</div>
+    </div>
+</div>

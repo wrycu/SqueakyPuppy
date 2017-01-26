@@ -23,7 +23,7 @@
     <a class="item" id="tab_assessments" data-tab="tab_assessments">
         Assessments
     </a>
-    <a class="item" data-tab="tab_blacklist">
+    <a class="item" id="tab_blacklist" data-tab="tab_blacklist">
         Domain Blacklist
     </a>
     <a class="item" data-tab="tab_log">
@@ -49,8 +49,7 @@
 </div>
 <div class="ui tab" id="tab_assessments_content" data-tab="tab_assessments">
 </div>
-<div class="ui tab" data-tab="tab_blacklist">
-    {% include "blacklists.html" %}
+<div class="ui tab" id="tab_blacklist_content" data-tab="tab_blacklist">
 </div>
 <div class="ui tab" data-tab="tab_log">
     f
@@ -66,19 +65,21 @@
     $(function () {
         $('.menu .item').tab();
         $.fn.api.settings.api = {
-            'get callbacks'      : '{{ url_for('squeaky_puppy.callback') }}',
-            'get youtube'        : '/youtube.html',
-            'create callback'    : '{{ url_for('squeaky_puppy.callback') }}',
-            'delete callback'    : '{{ url_for('squeaky_puppy.callback') }}/{id}',
-            'get users'          : '{{ url_for('squeaky_puppy.user') }}',
-            'create user'        : '{{ url_for('squeaky_puppy.user') }}',
-            'modify user'        : '{{ url_for('squeaky_puppy.user') }}/{id}',
-            'delete user'        : '{{ url_for('squeaky_puppy.user') }}/{id}',
-            'get assessments'    : '{{ url_for('squeaky_puppy.assessment') }}',
-            'create assessment' : '{{ url_for('squeaky_puppy.assessment') }}',
-            'modify assessment' : '{{ url_for('squeaky_puppy.assessment') }}/{id}',
-            'delete assessment' : '{{ url_for('squeaky_puppy.assessment') }}/{id}',
-            'view assessment'   : '{{ url_for('squeaky_puppy.view_assessment') }}/{id}',
+            'get callbacks'      : '{{ url_for("squeaky_puppy.callback") }}',
+            'create callback'    : '{{ url_for("squeaky_puppy.callback") }}',
+            'delete callback'    : '{{ url_for("squeaky_puppy.callback") }}/{id}',
+            'get users'          : '{{ url_for("squeaky_puppy.user") }}',
+            'create user'        : '{{ url_for("squeaky_puppy.user") }}',
+            'modify user'        : '{{ url_for("squeaky_puppy.user") }}/{id}',
+            'delete user'        : '{{ url_for("squeaky_puppy.user") }}/{id}',
+            'get assessments'    : '{{ url_for("squeaky_puppy.assessment") }}',
+            'create assessment' : '{{ url_for("squeaky_puppy.assessment") }}',
+            'modify assessment' : '{{ url_for("squeaky_puppy.assessment") }}/{id}',
+            'delete assessment' : '{{ url_for("squeaky_puppy.assessment") }}/{id}',
+            'view assessment'   : '{{ url_for("squeaky_puppy.view_assessment") }}/{id}',
+            'get blacklist'     : '{{ url_for("squeaky_puppy.domain") }}',
+            'create blacklist'     : '{{ url_for("squeaky_puppy.domain") }}',
+            'delete blacklist'     : '{{ url_for("squeaky_puppy.domain") }}/{id}',
         };
 
         $('#tab_callbacks').api({
@@ -110,6 +111,17 @@
             stateContext : '#tab_assessments_content',
             onSuccess: function(response) {
                 $('#tab_assessments_content').html(response);
+                $('table').tablesort()
+            },
+        });
+
+        $('#tab_blacklist').api({
+            action: 'get blacklist',
+            method : 'GET',
+            dataType: 'html',
+            stateContext : '#tab_blacklist_content',
+            onSuccess: function(response) {
+                $('#tab_blacklist_content').html(response);
                 $('table').tablesort()
             },
         });
